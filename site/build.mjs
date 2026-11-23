@@ -82,6 +82,12 @@ const CATALOGO = {
     descricao: 'Rendimento de CDB em percentual do CDI, com IR e IOF na tabela vigente.',
     etiquetas: ['Convenção BCB e B3', 'IR regressivo'],
   },
+  'conversor-de-taxas': {
+    categoria: 'Renda fixa',
+    nome: 'Conversor de Taxas',
+    descricao: 'Taxas equivalentes entre as bases 252, 360 e 365, efetiva e nominal, e % do CDI em CDI + spread, com o CDI do dia do Banco Central.',
+    etiquetas: ['Bases 252, 360 e 365', '% do CDI ↔ CDI + spread'],
+  },
   'titulos-publicos': {
     categoria: 'Renda fixa',
     nome: 'Cotação de Títulos Públicos',
@@ -144,12 +150,12 @@ const VITRINE = [
   {
     titulo: 'Mercado e decisões',
     texto: 'Renda fixa, câmbio, índices e derivativos listados para o dia a dia da tesouraria — e as contas de decisão do Vale a pena?',
-    slugs: ['vale-a-pena', 'calculadora-cdb', 'titulos-publicos', 'derivativos-listados-b3', 'cotacao-de-moedas', 'moedas-bndes', 'ibge', 'indicadores-economicos', 'commodities-agricolas', 'cotacao-de-metais'],
+    slugs: ['vale-a-pena', 'calculadora-cdb', 'conversor-de-taxas', 'titulos-publicos', 'derivativos-listados-b3', 'cotacao-de-moedas', 'moedas-bndes', 'ibge', 'indicadores-economicos', 'commodities-agricolas', 'cotacao-de-metais'],
   },
 ]
 
 /** Coluna "Ferramentas" do rodapé do site. */
-const RODAPE = ['vale-a-pena', 'calculadora-mtm-ndf', 'calculadora-mtm-swap', 'calculadora-mtm-opcoes', 'taxas-referenciais', 'calculadora-cdb', 'titulos-publicos', 'derivativos-listados-b3', 'moedas-bndes', 'ibge', 'commodities-agricolas', 'cotacao-de-metais']
+const RODAPE = ['vale-a-pena', 'calculadora-mtm-ndf', 'calculadora-mtm-swap', 'calculadora-mtm-opcoes', 'taxas-referenciais', 'calculadora-cdb', 'conversor-de-taxas', 'titulos-publicos', 'derivativos-listados-b3', 'moedas-bndes', 'ibge', 'indicadores-economicos', 'commodities-agricolas', 'cotacao-de-metais']
 
 const RE_RODAPE = /<div><h4>Ferramentas<\/h4><ul>[\s\S]*?<\/ul><\/div>/
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')

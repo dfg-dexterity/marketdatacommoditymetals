@@ -11,7 +11,7 @@ Mesma família dos apps `marketdata` (Cotação de Moedas), `taxas-indices` (Ind
 
 | Endereço | Para quê |
 | --- | --- |
-| **https://www.dexterityit.com.br/cotacao-de-metais** | Página do site (Odoo) com a ferramenta incorporada — endereço público e canônico. Gerada a partir de `site/`. **Ainda não publicada.** |
+| **https://www.dexterityit.com.br/cotacao-de-metais** | Página do site (Odoo) com a ferramenta incorporada — endereço público e canônico. Gerada a partir de `site/`. No ar desde 23/11/2026. |
 | **https://cotacao-de-metais.vercel.app** | A aplicação em si (projeto `cotacao-de-metais` do time `dexterityit` na Vercel, ligado ao GitHub `dfg-dexterity/marketdatacommoditymetals`), usada no `iframe` da página do site. No ar desde 23/11/2026. |
 
 ## Licenciamento das fontes
@@ -231,16 +231,33 @@ Node 20 ou mais novo; sem dependências. Reiniciar o servidor local ao mudar arq
    raiz e as funções de `api/` (`vercel.json`: região `gru1`, `maxDuration` 60 s, `frame-ancestors *`,
    `noindex` em `/api/`). As sete funções foram testadas em produção no mesmo dia e responderam 200,
    inclusive o Yahoo a partir do IP da Vercel e a B3 (em menos de 1 s, de São Paulo).
-3. **Kit comum**: `site/build.mjs` aqui parte do de `marketdatacommodity` e acrescenta a entrada
-   `cotacao-de-metais` no CATALOGO, na VITRINE e no RODAPE. O arquivo tem de ficar **idêntico** nos
-   demais repositórios do kit (`new-mtm-ndf`, `new-mtm-swap`, `new-mtm-opcoes`, `new-mtm-curvas`,
-   `cotacao-titulos-publicos`, `bndes-um`, `ibge`, `marketdatacommodity`), com `npm run site` em cada um.
-4. **Site (Odoo)**, MK-02-004 opção A: criar a página `/cotacao-de-metais`, publicar o bloco de
-   `site/odoo-pagina-cotacao-de-metais.html` e republicar a vitrine `/ferramentas` e a coluna
-   Ferramentas do rodapé. SEO no painel Otimizar SEO:
-   - **Título:** `Cotação de Metais: LME, COMEX, Xangai e B3 por praça e curva`
-   - **Descrição:** `Cobre, alumínio, zinco, níquel, ouro e prata em Londres (LME), Nova York (COMEX), Xangai (SHFE) e São Paulo (B3): preço por praça, curva, histórico e conversão para reais.`
-5. Conferir o `iframe` em janela anônima e a 390 px, e pedir a indexação no Search Console.
+3. **Kit comum**: feito em 23/11/2026. O `site/build.mjs` e o `site/casca-site.html` daqui partem dos
+   de `marketdatacommodity` (casca recapturada em 23/11/2026, com o Conversor de Taxas e as Commodities
+   Agrícolas) e somam a entrada `cotacao-de-metais` no CATALOGO, na VITRINE e no RODAPE. Os dois arquivos
+   ficaram **idênticos nos dez repositórios do kit** (`new-mtm-ndf`, `new-mtm-swap`, `new-mtm-opcoes`,
+   `new-mtm-curvas`, `cotacao-titulos-publicos`, `bndes-um`, `ibge`, `conversor`, `marketdatacommodity`
+   e este), com as páginas regeneradas e os testes de cada um passando.
+4. **Site (Odoo)**, MK-02-004 opção A: feito em 23/11/2026, pela sessão logada do Odoo no navegador.
+   - Página criada com `website.new_page`: view **6173** (key `website.cotacao-de-metais`),
+     `website.page` **49**, publicada, com título e descrição de SEO em pt_BR, e item **56** "Cotação de
+     Metais" no menu do Odoo, em Dados de Mercado. O bloco foi lido de `/site/` na Vercel (SHA-256
+     conferido com o arquivo local) e gravado com `ir.ui.view.save(valor, '/t[1]/t[1]/div[1]')`.
+   - Vitrine `/ferramentas` (view 5704) regravada com o bloco do kit: 15 cartões. A diferença para o que
+     estava publicado foi conferida antes: só os cartões das Commodities Agrícolas e dos Metais e os dois
+     itens de rodapé.
+   - Coluna "Ferramentas" do rodapé trocada pela de 14 itens em outras 23 views (4006, 5044, 5314, 5564,
+     5590, 5591, 5595, 5703, 5705, 5706, 5707, 5709, 5711, 5804, 5808, 5812, 5821, 6113, 6115, 6117, 6142,
+     6147 e 6148), conferindo que nada além da coluna mudou. Ficaram de fora, como nas rodadas
+     anteriores, as páginas não publicadas 5702 e 5708 e a view genérica 5814.
+   - **Backups**: as 24 views alteradas têm cópia inativa, feita antes, nas views **6149 a 6172**
+     (`<key>_backup_20261123`). Para desfazer uma página, copiar o `arch_db` em pt_BR do backup de volta.
+   - SEO no painel Otimizar SEO:
+     - **Título:** `Cotação de Metais: LME, COMEX, Xangai e B3 por praça e curva`
+     - **Descrição:** `Cobre, alumínio, zinco, níquel, ouro e prata em Londres (LME), Nova York (COMEX), Xangai (SHFE) e São Paulo (B3): preço por praça, curva, histórico e conversão para reais.`
+   - Conferida sem sessão: HTTP 200, título, descrição, canonical, `iframe` em `?embed=1`, JSON-LD e
+     rodapé na página nova; 15 cartões na vitrine; rodapé de 14 itens numa amostra de páginas.
+5. **Pendente**: pedir a indexação no Search Console (o `/sitemap.xml` do Odoo é cache e leva até 12
+   horas para incluir a página) e conferir o `iframe` em janela anônima e no celular.
 
 ## Identidade visual
 

@@ -12,7 +12,7 @@ Mesma família dos apps `marketdata` (Cotação de Moedas), `taxas-indices` (Ind
 | Endereço | Para quê |
 | --- | --- |
 | **https://www.dexterityit.com.br/cotacao-de-metais** | Página do site (Odoo) com a ferramenta incorporada — endereço público e canônico. Gerada a partir de `site/`. **Ainda não publicada.** |
-| **https://cotacao-de-metais.vercel.app** | A aplicação em si, usada no `iframe` da página do site. **Projeto ainda não criado na Vercel** — o nome está em `site/paginas/cotacao-de-metais.json` (`app`) e deve ser conferido na criação. |
+| **https://cotacao-de-metais.vercel.app** | A aplicação em si (projeto `cotacao-de-metais` do time `dexterityit` na Vercel, ligado ao GitHub `dfg-dexterity/marketdatacommoditymetals`), usada no `iframe` da página do site. No ar desde 23/11/2026. |
 
 ## Licenciamento das fontes
 
@@ -223,15 +223,14 @@ npm run site    # gera site/odoo-pagina-cotacao-de-metais.html
 
 Node 20 ou mais novo; sem dependências. Reiniciar o servidor local ao mudar arquivo de `lib/`.
 
-## Publicação — pendente
+## Publicação
 
 1. **Fontes**: decidido em 23/11/2026 — todas as praças ativas (seção de licenciamento).
-2. **Vercel**: criar o projeto `cotacao-de-metais` no time `dexterityit`, ligado a este repositório
-   (push na `main` = produção). Sem build: a Vercel serve os arquivos da raiz e as funções de `api/`
-   (`vercel.json`: região `gru1`, `maxDuration` 60 s, `frame-ancestors *`, `noindex` em `/api/`). Se o
-   domínio sair diferente de `cotacao-de-metais.vercel.app`, corrigir `app` no JSON e rodar
-   `npm run site`. Conferir de lá as fontes: os testes foram feitos de uma conexão comum, não de IP de
-   datacenter (o Yahoo costuma limitar mais).
+2. **Vercel**: feito em 23/11/2026 — projeto `cotacao-de-metais` no time `dexterityit`, ligado a este
+   repositório (push na `main` = produção; PR ganha preview). Sem build: a Vercel serve os arquivos da
+   raiz e as funções de `api/` (`vercel.json`: região `gru1`, `maxDuration` 60 s, `frame-ancestors *`,
+   `noindex` em `/api/`). As sete funções foram testadas em produção no mesmo dia e responderam 200,
+   inclusive o Yahoo a partir do IP da Vercel e a B3 (em menos de 1 s, de São Paulo).
 3. **Kit comum**: `site/build.mjs` aqui parte do de `marketdatacommodity` e acrescenta a entrada
    `cotacao-de-metais` no CATALOGO, na VITRINE e no RODAPE. O arquivo tem de ficar **idêntico** nos
    demais repositórios do kit (`new-mtm-ndf`, `new-mtm-swap`, `new-mtm-opcoes`, `new-mtm-curvas`,

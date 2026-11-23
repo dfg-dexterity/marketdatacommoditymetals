@@ -1,0 +1,77 @@
+{
+  "slug": "cotacao-de-metais",
+  "app": "https://cotacao-de-metais.vercel.app",
+  "categoria": "Commodities",
+  "titulo": "Cotação de Metais",
+  "tituloSEO": "Cotação de Metais: LME, COMEX, Xangai e B3 por praça e curva",
+  "metaDescricao": "Cobre, alumínio, zinco, níquel, ouro e prata em Londres (LME), Nova York (COMEX), Xangai (SHFE) e São Paulo (B3): preço por praça, curva, histórico e conversão para reais.",
+  "lead": "Veja o preço de treze metais em cada praça — o preço oficial da LME em Londres, o ajuste da COMEX em Nova York, da SHFE em Xangai e do Futuro de Ouro da B3 em São Paulo —, a curva por vencimento, o histórico com médias mensais e a conversão de unidade e de moeda pela PTAX.",
+  "nota": "A ferramenta roda no seu navegador, sem cadastro. As cotações vêm de fontes públicas, consultadas a cada acesso, e são do pregão anterior ou atrasadas: servem para conferência e não substituem a publicação oficial de cada bolsa.",
+  "secoes": [
+    {
+      "titulo": "O que a ferramenta mostra",
+      "paragrafos": [
+        "Treze metais num só lugar: os seis metais básicos da LME — cobre, alumínio, zinco, níquel, chumbo e estanho —, ouro, prata, platina e paládio, e os ferrosos minério de ferro, bobina a quente e vergalhão. O painel traz a cotação de referência de cada metal em cada praça, com a data do pregão e a variação do dia. Ao escolher um metal, as praças aparecem lado a lado na mesma moeda e na mesma unidade, com a diferença de cada uma para a primeira.",
+        "A curva de preços mostra todos os vencimentos negociados na praça, o spread de cada um contra o primeiro, a taxa anualizada e se a estrutura está em contango ou em backwardation, e estima o preço a termo de qualquer dia entre dois vencimentos. O histórico traz a série diária da LME e da COMEX com mínimo, máximo, média e as médias mensais usadas como período de cotação em contratos, além das médias mensais do Banco Mundial desde 1960."
+      ]
+    },
+    {
+      "titulo": "Praças, unidades e moedas",
+      "paragrafos": [
+        "Cada bolsa cota do seu jeito: a LME em dólares por tonelada, a COMEX em dólares por libra-peso no cobre e por onça troy nos preciosos, Xangai em iuanes por tonelada, por grama no ouro e por quilo na prata, e o Banco Central publica o ouro em reais por grama. Os seletores de moeda e de unidade convertem tudo para a base que você escolher, com a PTAX de venda do último boletim de fechamento do Banco Central. Sem escolha, cada preço fica como a praça publica e a comparação usa dólar por tonelada ou por onça troy.",
+        "Os futuros domésticos de Xangai embutem o imposto sobre valor agregado chinês de 13%, com exceção do ouro e do cobre internacional da INE. A opção Xangai sem IVA tira o imposto da conversão, para a comparação com Londres e Nova York fazer sentido. As praças fecham em horários e dias diferentes, e cada linha traz a data do seu pregão: a diferença entre elas é uma referência, não uma cotação de arbitragem."
+      ]
+    },
+    {
+      "titulo": "De onde vêm os dados",
+      "paragrafos": [
+        "Londres: preços oficiais da LME, cash settlement e três meses, e estoques, divulgados pela Westmetall. Nova York: ajuste diário dos futuros da CME, COMEX e NYMEX, lido do Yahoo Finance. Xangai: boletim diário oficial da SHFE, com todos os vencimentos, inclusive o cobre internacional da INE. São Paulo: boletim de pregão da B3, com o Futuro de Ouro. Brasil: PTAX e ouro do boletim de fechamento do Banco Central. Médias mensais: Commodity Price Data do Banco Mundial, a Pink Sheet, sob licença CC BY 4.0. O preço à vista de ouro, prata, platina, paládio e cobre é indicativo, da gold-api.com, e não é referência de bolsa.",
+        "Todos os preços de bolsa são do pregão anterior, e nenhum número é recalculado: a ferramenta lê, converte e põe lado a lado. As médias mensais do histórico são a média simples dos pregões do mês; em reais, a média de cada preço multiplicado pela PTAX do próprio dia."
+      ]
+    }
+  ],
+  "comoUsar": [
+    "No painel, veja a cotação de referência de cada metal em cada praça. Use o filtro para achar um metal ou uma bolsa e clique no nome do metal para abrir o detalhe.",
+    "Escolha a moeda e a unidade — real, dólar ou iuane; tonelada, quilo, grama, libra-peso ou onça troy — e marque Xangai sem IVA para comparar a SHFE com Londres e Nova York na mesma base.",
+    "Na curva de preços, escolha a praça para ver os vencimentos, o spread, a taxa anualizada e a estrutura. Informe um dia para estimar o preço a termo entre dois vencimentos.",
+    "No histórico, escolha a série e o período, alterne entre diário e média mensal e baixe a tabela em CSV ou Excel. A Planilha SAP gera as cotações com os campos do preço por DCS."
+  ],
+  "faq": [
+    {
+      "pergunta": "Qual a diferença entre o preço cash e o de 3 meses da LME?",
+      "resposta": "O cash settlement é o preço oficial para liquidação em dois dias úteis, e é a referência da maioria dos contratos físicos de metais básicos. O de três meses é o preço oficial para entrega três meses depois do pregão, o prazo mais negociado na LME. Quando o cash vale mais que o três meses, o mercado está em backwardation, sinal de oferta apertada para entrega imediata; quando vale menos, está em contango."
+    },
+    {
+      "pergunta": "O que são contango e backwardation?",
+      "resposta": "São os dois formatos da curva de preços. Em contango, os vencimentos mais longos custam mais que os próximos: o preço embute o custo de carregar o metal, que é juro, armazenagem e seguro. Em backwardation é o contrário, e o mercado paga um prêmio por receber o metal agora. A ferramenta compara o primeiro e o último vencimento, mostra o spread em preço e em percentual, anualiza essa diferença e avisa quando a curva muda de sentido no caminho."
+    },
+    {
+      "pergunta": "Por que o cobre em Xangai parece mais caro que em Londres?",
+      "resposta": "Porque o preço doméstico da SHFE inclui o imposto sobre valor agregado da China, de 13%, e é cotado em iuanes. Convertido para dólares sem tirar o imposto, ele fica cerca de 13% acima da LME. Marque Xangai sem IVA para ver os dois na mesma base. O contrato de cobre internacional da INE, também em Xangai, já é cotado sem imposto."
+    },
+    {
+      "pergunta": "Como é calculada a média mensal?",
+      "resposta": "É a média simples dos preços de todos os pregões do mês, a conta usada como período de cotação em contratos de compra, venda e hedge de metais. O mês corrente aparece com a média parcial, até o último pregão. Em reais, cada dia é convertido pela PTAX de venda do próprio dia antes de entrar na média, o que não é o mesmo que multiplicar a média em dólares pela PTAX média."
+    },
+    {
+      "pergunta": "As cotações são em tempo real?",
+      "resposta": "Não. Os preços de bolsa são os oficiais ou de ajuste do último pregão encerrado, e cada linha mostra a data. Só o preço à vista é do momento, e ele é indicativo. A ferramenta serve para conferência, acompanhamento e apoio a cálculos; para negociar ou liquidar um contrato, vale a publicação da bolsa ou da fonte prevista no contrato."
+    },
+    {
+      "pergunta": "Como levo as cotações para o SAP?",
+      "resposta": "No SAP S/4HANA, o preço de commodity é mantido por especificação de contrato derivativo, a DCS, na transação FDCS17 ou pela planilha da TBEXN; o aplicativo Importar Dados de Mercado não tem categoria de commodity. A Planilha SAP da ferramenta gera um Excel com os campos-chave desse preço — DCS, MIC, tipo de preço, data do preço, data-chave de vencimento, preço, moeda e unidade —, na cotação original da praça, para conferir, digitar ou colar. Não é um modelo oficial de carga."
+    }
+  ],
+  "etiquetas": [
+    "LME · COMEX · SHFE · B3",
+    "Excel · CSV"
+  ],
+  "descricaoCartao": "Cobre, alumínio, ouro e mais dez metais em Londres, Nova York, Xangai e São Paulo: preço por praça, curva de vencimentos e histórico.",
+  "outras": [
+    "commodities-agricolas",
+    "cotacao-de-moedas",
+    "derivativos-listados-b3",
+    "indicadores-economicos"
+  ],
+  "ordem": 9
+}

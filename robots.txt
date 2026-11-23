@@ -1,0 +1,7 @@
+# Cotação de Metais — Dexterity IT Solutions
+# O endereço canônico da ferramenta é https://www.dexterityit.com.br/cotacao-de-metais
+# (ver <link rel="canonical"> no index.html). As funções em /api/ são leitores das fontes
+# públicas de cotação e não têm conteúdo para indexar.
+User-agent: *
+Allow: /
+Disallow: /api/

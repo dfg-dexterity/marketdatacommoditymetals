@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cotação de Metais: LME, COMEX, Xangai e B3 por praça, com curva de preços</title>
+  <meta name="description"
+    content="Cobre, alumínio, zinco, níquel, ouro, prata e mais: preço em Londres (LME), Nova York (COMEX), Xangai (SHFE) e São Paulo (B3), curva por vencimento, histórico, médias mensais e conversão para reais." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#1B1B1B" />
+
+  <!-- Endereço público no domínio da Dexterity: a página do site que apresenta
+       esta ferramenta (ver site/paginas/cotacao-de-metais.json). -->
+  <link rel="canonical" href="https://www.dexterityit.com.br/cotacao-de-metais" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="Dexterity IT Solutions" />
+  <meta property="og:title" content="Cotação de Metais: LME, COMEX, Xangai e B3 por praça, com curva de preços" />
+  <meta property="og:description"
+    content="Preço dos metais em cada praça — Londres, Nova York, Xangai e São Paulo —, curva por vencimento, histórico, médias mensais e conversão de unidade e moeda. Ferramenta gratuita da Dexterity." />
+  <meta property="og:url" content="https://www.dexterityit.com.br/cotacao-de-metais" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://www.dexterityit.com.br/cotacao-de-metais#ferramenta",
+        "name": "Cotação de Metais",
+        "alternateName": "Cotação de commodities metálicas por praça: LME, COMEX, SHFE e B3",
+        "url": "https://www.dexterityit.com.br/cotacao-de-metais",
+        "description": "Cotação de metais básicos, preciosos e ferrosos por praça: preços oficiais da LME em Londres, ajustes da COMEX em Nova York, da SHFE em Xangai e do Futuro de Ouro da B3 em São Paulo, com curva de preços por vencimento, contango e backwardation, preço a termo interpolado, histórico diário, médias mensais, conversão de unidade e de moeda pela PTAX e exportação para Excel, CSV e planilha de apoio ao SAP.",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "pt-BR",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+        "publisher": {
+          "@type": "ProfessionalService",
+          "@id": "https://www.dexterityit.com.br/#organizacao",
+          "name": "Dexterity IT Solutions",
+          "url": "https://www.dexterityit.com.br"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Início", "item": "https://www.dexterityit.com.br/" },
+          { "@type": "ListItem", "position": 2, "name": "Ferramentas", "item": "https://www.dexterityit.com.br/ferramentas" },
+          { "@type": "ListItem", "position": 3, "name": "Cotação de Metais", "item": "https://www.dexterityit.com.br/cotacao-de-metais" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Figtree:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="assets/dexterity.css" />
+
+  <!-- O modo de incorporação (?embed=1) é aplicado antes da primeira pintura,
+       para o iframe não piscar com a faixa de título e o rodapé. -->
+  <script>
+    if (new URLSearchParams(location.search).get("embed") === "1") document.documentElement.classList.add("modo-embutido");
+  </script>
+
+  <!-- Gráfico na abertura; o Excel (SheetJS, ~900 KB) só desce na primeira exportação. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* ------------------------------------------------------------------
+     * Estilos próprios desta ferramenta. O sistema visual da marca (tokens,
+     * chrome, cartões, botões, tabela) vive em assets/dexterity.css.
+     * ------------------------------------------------------------------ */
+
+    [hidden] { display: none !important; }
+
+    main { width: var(--dxt-container); margin-inline: auto; padding: 32px 0 0; }
+
+    /* Ícones de traço — herdam currentColor. */
+    .ic {
+      width: 15px; height: 15px; flex: none;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .status {
+      font-family: var(--dxt-font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--dxt-rotulo);
+    }
+
+    .erro { color: #DD6953; }
+    .mono { font-family: var(--dxt-font-mono); }
+
+    .dxt-input[type="date"] { color-scheme: dark; }
+    .dxt-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.55); cursor: pointer; }
+    .dxt-input[type="date"]::-webkit-calendar-picker-indicator:hover { filter: invert(1) opacity(.9); }
+
+    /* ======================= FILTROS ======================= */
+
+    .faixa { margin-bottom: 16px; }
+    #chips { gap: 2px; }
+    /* Separador entre "Painel" e os metais, e entre os grupos de metais */
+    .dxt-chip.novo-grupo { margin-left: 10px; }
+
+    .rng-group { display: flex; gap: 2px; flex-wrap: wrap; }
+    .rng {
+      padding: 5px 11px;
+      border: 1px solid transparent; background: transparent;
+      color: var(--dxt-muted);
+      font-family: var(--dxt-font-mono);
+      font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+    }
+    .rng:hover { color: var(--dxt-off); background: var(--dxt-elevate-1); }
+    .rng.active { border-color: var(--dxt-cerceta); color: var(--dxt-acc-txt); }
+    .rng:disabled { opacity: .35; cursor: not-allowed; }
+
+    .ajustes .dxt-select { min-width: 132px; }
+    .marcador {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.8125rem; color: var(--dxt-muted); cursor: pointer; white-space: nowrap;
+    }
+    .marcador input { accent-color: var(--dxt-cerceta); width: 15px; height: 15px; margin: 0; }
+
+    .serie-info {
+      margin: 18px 0 0;
+      font-size: 0.875rem; line-height: 1.6;
+      color: var(--dxt-muted);
+    }
+    .serie-info b { color: var(--dxt-off); font-weight: 500; }
+    .serie-info a, .nota-linha a, .nota a { color: var(--dxt-acc-txt); text-decoration: none; border-bottom: 1px solid rgba(0,179,172,.4); }
+    .serie-info a:hover, .nota-linha a:hover, .nota a:hover { color: var(--dxt-amarelo); border-bottom-color: rgba(255,164,54,.5); }
+
+    /* Situação de cada fonte: uma etiqueta por praça */
+    .fontes { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 0; }
+    .fontes .dxt-badge b { font-weight: 500; color: var(--dxt-off); }
+    .fontes .dxt-badge.falhou { border-color: rgba(221,105,83,.5); color: #DD6953; }
+    .fontes .dxt-badge.falhou b { color: #DD6953; }
+
+    /* ======================= DADOS ======================= */
+
+    .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+    .grid > * { min-width: 0; }
+    .span4 { grid-column: span 4; }
+    .span12 { grid-column: span 12; }
+
+    .kpi-title {
+      font-family: var(--dxt-font-mono);
+      font-size: 0.6875rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--dxt-rotulo);
+      margin-bottom: 10px;
+    }
+    .kpi-value {
+      font-family: var(--dxt-font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--dxt-off);
+      overflow-wrap: anywhere;
+    }
+    .kpi-value small { font-size: 0.75rem; font-weight: 400; letter-spacing: 0.02em; color: var(--dxt-rotulo); }
+    .kpi-foot { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .kpi-foot .dxt-badge { white-space: normal; }
+
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .row > strong {
+      font-family: var(--dxt-font-display);
+      font-size: 1.125rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.01em;
+    }
+    .acoes { width: auto; }
+    .acoes .dxt-input { width: 200px; }
+
+    .stats { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+    .stats .dxt-badge { white-space: normal; }
+    .stats .dxt-badge b { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--dxt-off); }
+    .stats .dxt-badge--up b { color: var(--dxt-acc-txt); }
+    .stats .dxt-badge--down b { color: var(--dxt-amarelo); }
+
+    .seletores { display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+    .seletores .dxt-controls { width: auto; gap: 2px; }
+
+    .area-grafico { position: relative; height: 340px; margin-top: 14px; }
+
+    .tabela-rolagem { overflow: auto; max-height: 520px; margin-top: 14px; }
+    .tabela-rolagem thead th { position: sticky; top: 0; z-index: 1; background: var(--dxt-surface); cursor: pointer; white-space: nowrap; }
+    .tabela-rolagem thead th:hover { color: var(--dxt-off); }
+    .tabela-rolagem td { white-space: nowrap; }
+    .tabela-rolagem td.right { font-family: var(--dxt-font-mono); font-variant-numeric: tabular-nums; }
+    .tabela-rolagem td.sem-valor { color: var(--dxt-rotulo); }
+    .tabela-rolagem td.alta { color: var(--dxt-acc-txt); }
+    .tabela-rolagem td.baixa { color: var(--dxt-amarelo); }
+    .tabela-rolagem td small { display: block; font-family: var(--dxt-font-sans); font-size: 0.75rem; color: var(--dxt-rotulo); }
+    .tabela-rolagem td .unid { font-size: 0.75rem; color: var(--dxt-rotulo); }
+    .seta { color: var(--dxt-acc-txt); }
+    .sem-registros { padding: 28px 0 12px; text-align: center; font-size: 0.875rem; color: var(--dxt-muted); }
+
+    /* Nome do metal na tabela do painel: botão com cara de link */
+    .link-metal {
+      padding: 0; border: 0; background: none; cursor: pointer;
+      font: inherit; font-weight: 500; color: var(--dxt-off);
+      border-bottom: 1px solid rgba(0,179,172,.45);
+    }
+    .link-metal:hover { color: var(--dxt-acc-txt); }
+
+    .campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .campo .dxt-input, .campo .dxt-select { width: 100%; }
+    .nota-linha { margin: 12px 0 0; font-size: 0.8125rem; line-height: 1.6; color: var(--dxt-rotulo); }
+    .nota-linha b { color: var(--dxt-muted); font-weight: 500; }
+
+    /* Nota (roxo): informação, não erro. */
+    .nota {
+      margin: 12px 0 0; padding: 10px 14px;
+      border-left: 2px solid var(--dxt-roxo);
+      background: rgba(152, 86, 154, .08);
+      font-size: 0.8125rem; line-height: 1.6; color: #C08FC2;
+    }
+
+    /* Preço a termo interpolado */
+    .termo {
+      display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+      gap: 14px 16px; align-items: end; margin-top: 16px;
+      padding-top: 16px; border-top: 1px solid var(--dxt-line);
+    }
+    .termo .resultado .kpi-value { font-size: 1.25rem; line-height: 1.3; }
+
+    /* ================= PLANILHA SAP ================= */
+
+    #modalSap .dxt-modal-box {
+      max-width: 680px; max-height: calc(100vh - 40px); overflow-y: auto; padding-bottom: 0;
+    }
+
+    /* Título e botão de fechar na mesma linha, mesmo no celular */
+    .dxt-modal-box > .row { flex-wrap: nowrap; align-items: flex-start; }
+
+    .modal-corpo { margin-top: 14px; font-size: 0.875rem; line-height: 1.65; color: var(--dxt-muted); }
+    .modal-corpo a { color: var(--dxt-acc-txt); text-decoration: none; border-bottom: 1px solid rgba(0,179,172,.4); }
+    .modal-corpo a:hover { color: var(--dxt-amarelo); border-bottom-color: rgba(255,164,54,.5); }
+    .modal-corpo p { margin: 0 0 14px; }
+    .modal-corpo b { color: var(--dxt-off); font-weight: 500; }
+
+    .sap-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; margin-top: 4px; }
+
+    /* Ações presas no pé da caixa: o conteúdo rola por baixo delas. */
+    .sap-acoes {
+      position: sticky; bottom: 0;
+      margin: 20px -24px 0; padding: 14px 24px 20px;
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+      border-top: 1px solid var(--dxt-line);
+      background: var(--dxt-surface);
+    }
+    .sap-acoes .dxt-badge { white-space: normal; }
+
+    .noscript {
+      margin: 24px 0 0; padding: 16px;
+      border: 1px solid rgba(152, 86, 154, .45);
+      font-size: 0.875rem; color: var(--dxt-muted);
+    }
+
+    @media (max-width: 980px) {
+      .span4 { grid-column: span 12; }
+      .dxt-controls { width: 100%; }
+      .acoes, .seletores .dxt-controls { width: auto; }
+    }
+
+    /* Celular: como nas demais ferramentas, as fileiras de filtro rolam na
+       horizontal em vez de quebrar em várias linhas. */
+    @media (max-width: 640px) {
+      .dxt-pagehead h1 { font-size: clamp(2rem, 9vw, 3.5rem); }
+      #chips, .rng-group, .seletores .dxt-controls {
+        flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%;
+      }
+      #chips::-webkit-scrollbar, .rng-group::-webkit-scrollbar, .seletores .dxt-controls::-webkit-scrollbar { display: none; }
+      #chips .dxt-chip, .rng, .seletores .dxt-chip { flex: none; white-space: nowrap; }
+      .ajustes { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px 12px; align-items: center; }
+      .ajustes .dxt-select { min-width: 0; width: 100%; }
+      .ajustes .marcador { grid-column: 1 / -1; }
+      .acoes { width: 100%; }
+      .acoes .dxt-input { flex: 1 1 100%; width: auto; }
+      .termo { grid-template-columns: minmax(0, 1fr); }
+      .sap-campos { grid-template-columns: 1fr; }
+      .area-grafico { height: 270px; }
+    }
+
+    /* ============ MODO INCORPORADO (?embed=1 — iframe no site ou no Notion) ============
+       A página que incorpora já tem título, texto e rodapé: aqui fica só a
+       ferramenta, na largura toda do iframe. */
+    .modo-embutido { --dxt-container: calc(100% - 32px); }
+    .modo-embutido .dxt-topbar { position: static; backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--dxt-base); }
+    .modo-embutido .dxt-topbar-inner { padding: 10px 0; }
+    .modo-embutido .dxt-topbar .dxt-logo { height: 20px; }
+    .modo-embutido .dxt-pagehead { display: none; }
+    .modo-embutido main { padding-top: 16px; }
+    .modo-embutido .dxt-footer-inner { display: none; }
+    .modo-embutido .dxt-footer { margin-top: 32px; }
+    .modo-embutido .dxt-footer-nota { border-top: 0; }
+    .modo-embutido .tabela-rolagem { max-height: 440px; }
+  </style>
+</head>
+
+<body>
+  <!-- Sprite de ícones (traço, herdam currentColor) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="ic-chart" viewBox="0 0 24 24">
+      <path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 14l4-4 3 3 5-6"/>
+    </symbol>
+    <symbol id="ic-x" viewBox="0 0 24 24">
+      <path d="M18 6L6 18"/><path d="M6 6l12 12"/>
+    </symbol>
+    <symbol id="ic-download" viewBox="0 0 24 24">
+      <path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/>
+    </symbol>
+    <symbol id="ic-send" viewBox="0 0 24 24">
+      <path d="M12 17V4"/><path d="M7 9l5-5 5 5"/><path d="M4 14v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/>
+    </symbol>
+    <symbol id="ic-refresh" viewBox="0 0 24 24">
+      <path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/>
+    </symbol>
+  </svg>
+
+  <!-- ===================== Barra de marca ===================== -->
+  <div class="dxt-topbar">
+    <div class="dxt-topbar-inner">
+      <a href="https://www.dexterityit.com.br" aria-label="Dexterity IT Solutions — ir para o site">
+        <svg class="dxt-logo" viewBox="0 0 445.4 100" role="img" aria-label="Dexterity IT Solutions"
+             style="--mk:var(--dxt-off);--acc:var(--dxt-cerceta)">
+          <g transform="scale(0.64475) translate(-206.8,-19)">
+                <path fill="var(--mk)" d="M306.8,41.1c0,6.7-1.3,13.1-3.8,19.1s-6.1,11.4-10.8,16.1c-4.7,4.7-10.2,8.4-16.1,10.8c-6,2.5-12.4,3.8-19.1,3.8c-0.2,0-1.8,0-3.4,0c-1.1,0-2.2,0-2.8,0.1c-0.4,0-0.7-0.2-0.9-0.5l-21.6-35.4l-21-34.4c-0.4-0.6,0.1-1.5,0.8-1.5h48.5h49.2c0.5,0,1,0.4,1,1v10V41.1z"/>
+                <path fill="var(--acc)" d="M318.4,40.7c0,0.1,0,0.2,0,0.3c0,0.1,0,0.2,0,0.3c0,0.1,0,0.2,0,0.3c0,0.1,0,0.2,0,0.3c0.1,6.6,1.4,12.9,3.9,18.8c2.5,5.9,6.1,11.3,10.7,15.9c4.7,4.7,10.2,8.4,16.1,10.8c6,2.5,12.4,3.8,19.1,3.8h17.4h15.7c0.8,0,1.2-0.8,0.8-1.5l-10-16.4l-10.9-17.8c-6.8-11.2-14.9-20.2-24.5-26.4c-9.6-6.2-20.8-9.6-33.9-9.6h-3.4c-0.5,0-1,0.4-1,1V30V40.7z"/>
+                <path fill="var(--mk)" d="M306.8,152.3c0-6.7-1.3-13.1-3.8-19.1s-6.1-11.4-10.8-16.1c-4.7-4.7-10.2-8.4-16.1-10.8c-6-2.5-12.4-3.8-19.1-3.8c-0.2,0-1.8,0-3.4,0c-1.1,0-2.2,0-2.8-0.1c-0.4,0-0.7,0.2-0.9,0.5l-21.6,35.4l-21,34.4c-0.4,0.6,0.1,1.5,0.8,1.5h48.5h49.2c0.5,0,1-0.4,1-1v-10V152.3z"/>
+                <path fill="var(--mk)" d="M368.2,102.5c-6.7,0-13.1,1.3-19.1,3.8s-11.4,6.1-16.1,10.8c-4.7,4.7-8.3,10.1-10.8,16.1c-2.5,5.9-3.8,12.4-3.8,19c0,0,0,0.1,0,0.1s0,0.1,0,0.1c0,0,0,0,0,0c0,0,0,0,0,0v5.1v5.1v5.8v4.8c0,0.5,0.5,1,1,1c12.5-0.4,24.5-3.9,35-9.9c10.8-6.2,20.1-15.1,26.8-26.1l10.9-17.8l10-16.3c0.4-0.6-0.1-1.5-0.8-1.5h-15.7H368.2z"/>
+              </g>
+          <g transform="translate(152,17) scale(0.51123) translate(-17.5,-217.5)">
+                <path fill="var(--mk)" d="M41.5,346.9h-23c-0.4,0-0.8-0.4-0.8-0.8V218.6c0-0.4,0.4-0.8,0.8-0.8h23c10.5,0,19.9,5.4,26.3,15.3c7.2,11,10.8,27.6,10.8,49.3c0,21.7-3.6,38.3-10.8,49.3C61.3,341.5,52,346.9,41.5,346.9zM33.9,330.7h7.6c13.1,0,21-18.1,21-48.4s-7.8-48.4-21-48.4h-7.6V330.7z"/>
+                <path fill="var(--mk)" d="M141.3,233.2v-14.6c0-0.4-0.4-0.8-0.8-0.8H93.6c-0.4,0-0.8,0.4-0.8,0.8v55.6v16.2v55.6c0,0.4,0.4,0.8,0.8,0.8h46.9c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8H109v-40.2h26.4c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8H109V234h31.5C141,234,141.3,233.7,141.3,233.2z"/>
+                <path fill="var(--mk)" d="M148.8,346.9h15.7c0.3,0,0.6-0.2,0.8-0.5l17-42.3l17,42.3c0.1,0.3,0.4,0.5,0.8,0.5h15.7c0.6,0,1-0.6,0.8-1.1L191,282.3l19.4-48.3h22.8v112c0,0.4,0.4,0.8,0.8,0.8h14.6c0.4,0,0.8-0.4,0.8-0.8V234H274c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8h-24.6h-16.2h-16.3H200c-0.3,0-0.6,0.2-0.8,0.5l-17,42.3l-17-42.3c-0.1-0.3-0.4-0.5-0.8-0.5h-15.7c-0.6,0-1,0.6-0.8,1.1l25.5,63.4l-25.5,63.4C147.9,346.3,148.3,346.9,148.8,346.9z"/>
+                <path fill="var(--mk)" d="M332.7,233.2v-14.6c0-0.4-0.4-0.8-0.8-0.8H285c-0.4,0-0.8,0.4-0.8,0.8v55.6v16.2v55.6c0,0.4,0.4,0.8,0.8,0.8h46.9c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8h-31.5v-40.2h26.4c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8h-26.4V234h31.5C332.3,234,332.7,233.7,332.7,233.2z"/>
+                <path fill="var(--mk)" d="M363.1,297.1v-16.2V234h4c13.9,0,21,7.9,21,23.4c0,12.8-4.7,20.3-14.3,22.7l-9,2.2l25.7,64c0.1,0.3,0.4,0.5,0.8,0.5H407c0.6,0,1-0.6,0.8-1.1l-21.4-53.3c11.5-6.3,18-18.6,18-35c0-29.2-19.2-39.6-37.1-39.6h-19.4c-0.4,0-0.8,0.4-0.8,0.8v62.2v16.2v49c0,0.4,0.4,0.8,0.8,0.8h14.6c0.4,0,0.8-0.4,0.8-0.8V297.1z"/>
+                <path fill="var(--acc)" d="M434,346.9h-14.6c-0.4,0-0.8-0.4-0.8-0.8V218.7c0-0.4,0.4-0.8,0.8-0.8H434c0.4,0,0.8,0.4,0.8,0.8v127.4C434.8,346.5,434.4,346.9,434,346.9z"/>
+                <path fill="var(--acc)" d="M485.9,217.9h-16.2h-17.1h-7.4c-0.4,0-0.8,0.4-0.8,0.8v14.6c0,0.4,0.4,0.8,0.8,0.8h24.5v112c0,0.4,0.4,0.8,0.8,0.8h14.6c0.4,0,0.8-0.4,0.8-0.8V234h25.9c0.5,0,0.8-0.5,0.6-0.9l-6-14.9c-0.1-0.2-0.3-0.4-0.6-0.4H485.9z"/>
+                <path fill="var(--mk)" d="M591,217.9h-15.7c-0.3,0-0.6,0.2-0.8,0.5L554.2,269l-20.3-50.6c-0.1-0.3-0.4-0.5-0.8-0.5h-6.5h-9.5c-0.5,0-0.8,0.5-0.6,0.9l6.2,15.3h0l23.4,58.2V346c0,0.4,0.4,0.8,0.8,0.8h14.6c0.4,0,0.8-0.4,0.8-0.8v-53.8l29.4-73.3C591.9,218.4,591.5,217.9,591,217.9z"/>
+              </g>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ===================== Título da página ===================== -->
+  <header class="dxt-pagehead">
+    <div class="dxt-pagehead-inner">
+      <div style="min-width:0">
+        <span class="dxt-eyebrow">Dados de mercado · Commodities</span>
+        <h1>Cotação de Metais</h1>
+        <p>
+          O preço de cada metal em cada praça — Londres (LME), Nova York (COMEX), Xangai (SHFE) e
+          São Paulo (B3) —, com a curva por vencimento, o histórico, as médias mensais e a conversão
+          de unidade e de moeda pela PTAX.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= FILTROS ================= -->
+    <div class="dxt-toolbar faixa">
+      <div class="dxt-controls" id="chips" role="group" aria-label="Metal"></div>
+    </div>
+
+    <div class="dxt-toolbar">
+      <div class="dxt-controls ajustes">
+        <label class="status" for="selMoeda">Moeda</label>
+        <select id="selMoeda" class="dxt-select">
+          <option value="original">Da praça</option>
+          <option value="USD">Dólar (US$)</option>
+          <option value="BRL">Real (R$)</option>
+          <option value="CNY">Iuane (CN¥)</option>
+        </select>
+        <label class="status" for="selUnidade">Unidade</label>
+        <select id="selUnidade" class="dxt-select">
+          <option value="original">Da praça</option>
+          <option value="t">Tonelada (t)</option>
+          <option value="kg">Quilograma (kg)</option>
+          <option value="g">Grama (g)</option>
+          <option value="lb">Libra-peso (lb)</option>
+          <option value="oz">Onça troy (oz t)</option>
+        </select>
+        <label class="marcador" title="Os futuros domésticos de Xangai embutem o IVA chinês de 13%. Marque para comparar com Londres e Nova York sem o imposto.">
+          <input type="checkbox" id="chkIva" /> Xangai sem IVA de 13%
+        </label>
+      </div>
+      <div class="dxt-controls">
+        <button type="button" id="btnAtualizar" class="dxt-btn dxt-btn--ghost dxt-btn--sm"><svg class="ic" aria-hidden="true"><use href="#ic-refresh"/></svg>Atualizar</button>
+      </div>
+    </div>
+
+    <p class="serie-info" id="infoCambio" aria-live="polite"></p>
+    <div class="fontes" id="fontes" aria-label="Situação de cada fonte"></div>
+
+    <!-- ================= INDICADORES ================= -->
+    <div class="grid">
+      <div class="dxt-card dxt-card-body span4">
+        <div class="kpi-title" id="kpi1Titulo">—</div>
+        <div class="kpi-value" id="kpi1Valor">—</div>
+        <div class="kpi-foot" id="kpi1Pe"></div>
+      </div>
+
+      <div class="dxt-card dxt-card-body span4">
+        <div class="kpi-title" id="kpi2Titulo">—</div>
+        <div class="kpi-value" id="kpi2Valor">—</div>
+        <div class="kpi-foot" id="kpi2Pe"></div>
+      </div>
+
+      <div class="dxt-card dxt-card-body span4">
+        <div class="kpi-title" id="kpi3Titulo">—</div>
+        <div class="kpi-value" id="kpi3Valor">—</div>
+        <div class="kpi-foot" id="kpi3Pe"></div>
+      </div>
+
+      <!-- ============ PAINEL: todos os metais ============ -->
+      <div class="dxt-card dxt-card-body span12" id="cartaoPainel">
+        <div class="row">
+          <strong>Cotações por praça</strong>
+          <div class="dxt-controls acoes">
+            <input type="search" id="filtroPainel" class="dxt-input" placeholder="Filtrar… ex.: cobre ou LME" aria-label="Filtrar por metal ou praça" />
+            <span class="status" id="contPainel">—</span>
+            <button type="button" id="csvPainel" class="dxt-btn dxt-btn--ghost dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-download"/></svg>CSV</button>
+            <button type="button" id="xlsxPainel" class="dxt-btn dxt-btn--ghost dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-download"/></svg>Excel</button>
+          </div>
+        </div>
+        <div class="tabela-rolagem">
+          <table id="tblPainel" class="dxt-table">
+            <thead><tr></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="sem-registros" id="vazioPainel" hidden>Nenhuma cotação para mostrar.</div>
+        </div>
+        <p class="nota-linha">
+          Cada linha é a referência do metal na praça: na LME, o <b>preço oficial</b> à vista (cash
+          settlement) e o de 3 meses; na COMEX, o <b>ajuste</b> do vencimento de referência; em
+          Xangai e na B3, o ajuste do contrato com <b>maior posição em aberto</b>. Clique no metal
+          para ver as praças lado a lado, a curva e o histórico.
+        </p>
+      </div>
+
+      <!-- ============ METAL: praças ============ -->
+      <div class="dxt-card dxt-card-body span12" id="cartaoPracas" hidden>
+        <div class="row">
+          <strong id="tituloPracas">Praças</strong>
+          <div class="dxt-controls acoes">
+            <span class="status" id="contPracas">—</span>
+            <button type="button" id="csvPracas" class="dxt-btn dxt-btn--ghost dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-download"/></svg>CSV</button>
+            <button type="button" id="xlsxPracas" class="dxt-btn dxt-btn--ghost dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-download"/></svg>Excel</button>
+          </div>
+        </div>
+        <div class="tabela-rolagem">
+          <table id="tblPracas" class="dxt-table">
+            <thead><tr></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="sem-registros" id="vazioPracas" hidden>Nenhuma praça respondeu para este metal.</div>
+        </div>
+        <p class="nota-linha" id="notaPracas"></p>
+      </div>
+
+      <!-- ============ METAL: curva de preços ============ -->
+      <div class="dxt-card dxt-card-body span12" id="cartaoCurva" hidden>
+        <div class="row">
+          <strong>Curva de preços</strong>
+          <span class="status" id="statusCurva">—</span>
+        </div>
+        <div class="seletores">
+          <div class="dxt-controls" id="chipsCurva" role="group" aria-label="Praça da curva"></div>
+        </div>
+        <div class="stats">
+          <span class="dxt-badge" id="curvaEstruturaPill">Estrutura: <b id="curvaEstrutura">—</b></span>
+          <span class="dxt-badge">1º vencimento: <b id="curvaPrimeiro">—</b></span>
+          <span class="dxt-badge">Último: <b id="curvaUltimo">—</b></span>
+          <span class="dxt-badge" id="curvaSpreadPill">Spread: <b id="curvaSpread">—</b></span>
+          <span class="dxt-badge" id="curvaAnualPill" title="Spread entre o primeiro e o último vencimento, anualizado de forma linear (base 365 dias)">Ao ano: <b id="curvaAnual">—</b></span>
+        </div>
+        <div class="area-grafico">
+          <canvas id="graficoCurva" aria-label="Gráfico da curva de preços por vencimento" role="img"></canvas>
+        </div>
+
+        <div class="termo">
+          <div class="campo">
+            <label class="dxt-label" for="dataTermo">Preço a termo para o dia</label>
+            <input type="date" id="dataTermo" class="dxt-input" />
+          </div>
+          <div class="campo resultado">
+            <span class="dxt-label">Estimativa por interpolação linear</span>
+            <span class="kpi-value" id="resTermo" aria-live="polite">—</span>
+          </div>
+        </div>
+        <p class="nota-linha" id="notaTermo"></p>
+
+        <div class="row" style="margin-top:18px">
+          <span class="status" id="contCurva">—</span>
+          <div class="dxt-controls acoes">
+            <button type="button" id="csvCurva" class="dxt-btn dxt-btn--ghost dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-download"/></svg>CSV</button>
+            <button type="button" id="xlsxCurva" class="dxt-btn dxt-btn--ghost dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-download"/></svg>Excel</button>
+            <button type="button" id="sapCurva" class="dxt-btn dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-send"/></svg>Planilha SAP</button>
+          </div>
+        </div>
+        <div class="tabela-rolagem">
+          <table id="tblCurva" class="dxt-table">
+            <thead><tr></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="sem-registros" id="vazioCurva" hidden>Sem curva por vencimento para este metal.</div>
+        </div>
+      </div>
+
+      <!-- ============ METAL: histórico e médias ============ -->
+      <div class="dxt-card dxt-card-body span12" id="cartaoHist" hidden>
+        <div class="row">
+          <strong>Histórico e médias</strong>
+          <span class="status" id="statusHist">—</span>
+        </div>
+        <div class="seletores">
+          <div class="dxt-controls" id="chipsHist" role="group" aria-label="Série do histórico"></div>
+          <div class="rng-group" id="rngHist" role="group" aria-label="Período"></div>
+          <div class="rng-group" id="modoHist" role="group" aria-label="Agrupamento">
+            <button type="button" class="rng" data-modo="diario">Diário</button>
+            <button type="button" class="rng" data-modo="mensal">Média mensal</button>
+          </div>
+        </div>
+        <div class="stats">
+          <span class="status" id="histRotulo">—</span>
+          <span class="dxt-badge">Mín: <b id="histMin">—</b></span>
+          <span class="dxt-badge">Máx: <b id="histMax">—</b></span>
+          <span class="dxt-badge">Média: <b id="histMed">—</b></span>
+          <span class="dxt-badge" id="histVarPill" title="Último valor do período contra o primeiro">Variação no período: <b id="histVar">—</b></span>
+        </div>
+        <div class="area-grafico">
+          <canvas id="graficoHist" aria-label="Gráfico do histórico de preços" role="img"></canvas>
+        </div>
+        <p class="nota" id="notaHist" role="status" hidden></p>
+
+        <div class="row" style="margin-top:18px">
+          <div class="dxt-controls acoes">
+            <input type="search" id="filtroHist" class="dxt-input" placeholder="Filtrar… ex.: 11/2026" aria-label="Filtrar por data" />
+            <span class="status" id="contHist">—</span>
+          </div>
+          <div class="dxt-controls acoes">
+            <button type="button" id="csvHist" class="dxt-btn dxt-btn--ghost dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-download"/></svg>CSV</button>
+            <button type="button" id="xlsxHist" class="dxt-btn dxt-btn--ghost dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-download"/></svg>Excel</button>
+            <button type="button" id="sapHist" class="dxt-btn dxt-btn--sm" disabled><svg class="ic" aria-hidden="true"><use href="#ic-send"/></svg>Planilha SAP</button>
+          </div>
+        </div>
+        <div class="tabela-rolagem">
+          <table id="tblHist" class="dxt-table">
+            <thead><tr></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="sem-registros" id="vazioHist" hidden>Sem dados no período selecionado.</div>
+        </div>
+      </div>
+    </div>
+
+    <noscript>
+      <p class="noscript">
+        Esta ferramenta busca as cotações dos metais no navegador e precisa de JavaScript. Ative o
+        JavaScript para ver os preços por praça, a curva e o histórico.
+      </p>
+    </noscript>
+  </main>
+
+  <!-- ===================== Rodapé ===================== -->
+  <footer class="dxt-footer">
+    <div class="dxt-footer-inner">
+      <div class="dxt-footer-brand">
+        <a href="https://www.dexterityit.com.br" aria-label="Dexterity IT Solutions">
+          <svg class="dxt-logo" viewBox="0 0 445.4 100" role="img" aria-label="Dexterity IT Solutions"
+               style="--mk:var(--dxt-off);--acc:var(--dxt-cerceta)">
+            <g transform="scale(0.64475) translate(-206.8,-19)">
+                  <path fill="var(--mk)" d="M306.8,41.1c0,6.7-1.3,13.1-3.8,19.1s-6.1,11.4-10.8,16.1c-4.7,4.7-10.2,8.4-16.1,10.8c-6,2.5-12.4,3.8-19.1,3.8c-0.2,0-1.8,0-3.4,0c-1.1,0-2.2,0-2.8,0.1c-0.4,0-0.7-0.2-0.9-0.5l-21.6-35.4l-21-34.4c-0.4-0.6,0.1-1.5,0.8-1.5h48.5h49.2c0.5,0,1,0.4,1,1v10V41.1z"/>
+                  <path fill="var(--acc)" d="M318.4,40.7c0,0.1,0,0.2,0,0.3c0,0.1,0,0.2,0,0.3c0,0.1,0,0.2,0,0.3c0,0.1,0,0.2,0,0.3c0.1,6.6,1.4,12.9,3.9,18.8c2.5,5.9,6.1,11.3,10.7,15.9c4.7,4.7,10.2,8.4,16.1,10.8c6,2.5,12.4,3.8,19.1,3.8h17.4h15.7c0.8,0,1.2-0.8,0.8-1.5l-10-16.4l-10.9-17.8c-6.8-11.2-14.9-20.2-24.5-26.4c-9.6-6.2-20.8-9.6-33.9-9.6h-3.4c-0.5,0-1,0.4-1,1V30V40.7z"/>
+                  <path fill="var(--mk)" d="M306.8,152.3c0-6.7-1.3-13.1-3.8-19.1s-6.1-11.4-10.8-16.1c-4.7-4.7-10.2-8.4-16.1-10.8c-6-2.5-12.4-3.8-19.1-3.8c-0.2,0-1.8,0-3.4,0c-1.1,0-2.2,0-2.8-0.1c-0.4,0-0.7,0.2-0.9,0.5l-21.6,35.4l-21,34.4c-0.4,0.6,0.1,1.5,0.8,1.5h48.5h49.2c0.5,0,1-0.4,1-1v-10V152.3z"/>
+                  <path fill="var(--mk)" d="M368.2,102.5c-6.7,0-13.1,1.3-19.1,3.8s-11.4,6.1-16.1,10.8c-4.7,4.7-8.3,10.1-10.8,16.1c-2.5,5.9-3.8,12.4-3.8,19c0,0,0,0.1,0,0.1s0,0.1,0,0.1c0,0,0,0,0,0c0,0,0,0,0,0v5.1v5.1v5.8v4.8c0,0.5,0.5,1,1,1c12.5-0.4,24.5-3.9,35-9.9c10.8-6.2,20.1-15.1,26.8-26.1l10.9-17.8l10-16.3c0.4-0.6-0.1-1.5-0.8-1.5h-15.7H368.2z"/>
+                </g>
+            <g transform="translate(152,17) scale(0.51123) translate(-17.5,-217.5)">
+                  <path fill="var(--mk)" d="M41.5,346.9h-23c-0.4,0-0.8-0.4-0.8-0.8V218.6c0-0.4,0.4-0.8,0.8-0.8h23c10.5,0,19.9,5.4,26.3,15.3c7.2,11,10.8,27.6,10.8,49.3c0,21.7-3.6,38.3-10.8,49.3C61.3,341.5,52,346.9,41.5,346.9zM33.9,330.7h7.6c13.1,0,21-18.1,21-48.4s-7.8-48.4-21-48.4h-7.6V330.7z"/>
+                  <path fill="var(--mk)" d="M141.3,233.2v-14.6c0-0.4-0.4-0.8-0.8-0.8H93.6c-0.4,0-0.8,0.4-0.8,0.8v55.6v16.2v55.6c0,0.4,0.4,0.8,0.8,0.8h46.9c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8H109v-40.2h26.4c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8H109V234h31.5C141,234,141.3,233.7,141.3,233.2z"/>
+                  <path fill="var(--mk)" d="M148.8,346.9h15.7c0.3,0,0.6-0.2,0.8-0.5l17-42.3l17,42.3c0.1,0.3,0.4,0.5,0.8,0.5h15.7c0.6,0,1-0.6,0.8-1.1L191,282.3l19.4-48.3h22.8v112c0,0.4,0.4,0.8,0.8,0.8h14.6c0.4,0,0.8-0.4,0.8-0.8V234H274c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8h-24.6h-16.2h-16.3H200c-0.3,0-0.6,0.2-0.8,0.5l-17,42.3l-17-42.3c-0.1-0.3-0.4-0.5-0.8-0.5h-15.7c-0.6,0-1,0.6-0.8,1.1l25.5,63.4l-25.5,63.4C147.9,346.3,148.3,346.9,148.8,346.9z"/>
+                  <path fill="var(--mk)" d="M332.7,233.2v-14.6c0-0.4-0.4-0.8-0.8-0.8H285c-0.4,0-0.8,0.4-0.8,0.8v55.6v16.2v55.6c0,0.4,0.4,0.8,0.8,0.8h46.9c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8h-31.5v-40.2h26.4c0.4,0,0.8-0.4,0.8-0.8v-14.6c0-0.4-0.4-0.8-0.8-0.8h-26.4V234h31.5C332.3,234,332.7,233.7,332.7,233.2z"/>
+                  <path fill="var(--mk)" d="M363.1,297.1v-16.2V234h4c13.9,0,21,7.9,21,23.4c0,12.8-4.7,20.3-14.3,22.7l-9,2.2l25.7,64c0.1,0.3,0.4,0.5,0.8,0.5H407c0.6,0,1-0.6,0.8-1.1l-21.4-53.3c11.5-6.3,18-18.6,18-35c0-29.2-19.2-39.6-37.1-39.6h-19.4c-0.4,0-0.8,0.4-0.8,0.8v62.2v16.2v49c0,0.4,0.4,0.8,0.8,0.8h14.6c0.4,0,0.8-0.4,0.8-0.8V297.1z"/>
+                  <path fill="var(--acc)" d="M434,346.9h-14.6c-0.4,0-0.8-0.4-0.8-0.8V218.7c0-0.4,0.4-0.8,0.8-0.8H434c0.4,0,0.8,0.4,0.8,0.8v127.4C434.8,346.5,434.4,346.9,434,346.9z"/>
+                  <path fill="var(--acc)" d="M485.9,217.9h-16.2h-17.1h-7.4c-0.4,0-0.8,0.4-0.8,0.8v14.6c0,0.4,0.4,0.8,0.8,0.8h24.5v112c0,0.4,0.4,0.8,0.8,0.8h14.6c0.4,0,0.8-0.4,0.8-0.8V234h25.9c0.5,0,0.8-0.5,0.6-0.9l-6-14.9c-0.1-0.2-0.3-0.4-0.6-0.4H485.9z"/>
+                  <path fill="var(--mk)" d="M591,217.9h-15.7c-0.3,0-0.6,0.2-0.8,0.5L554.2,269l-20.3-50.6c-0.1-0.3-0.4-0.5-0.8-0.5h-6.5h-9.5c-0.5,0-0.8,0.5-0.6,0.9l6.2,15.3h0l23.4,58.2V346c0,0.4,0.4,0.8,0.8,0.8h14.6c0.4,0,0.8-0.4,0.8-0.8v-53.8l29.4-73.3C591.9,218.4,591.5,217.9,591,217.9z"/>
+                </g>
+          </svg>
+        </a>
+        <p>Consultoria SAP especializada em Tesouraria e Risco.</p>
+        <address>
+          Rua Visconde do Rio Branco, 1488 — Conj. 909<br />
+          Centro · Curitiba · PR<br />
+          CEP 80420-210
+        </address>
+      </div>
+
+      <div>
+        <h4 class="dxt-eyebrow dxt-eyebrow-muted">Ferramentas</h4>
+        <ul>
+          <li><a href="https://www.dexterityit.com.br/calculadora-mtm-ndf" data-ferramenta>Calculadora MTM NDF</a></li>
+          <li><a href="https://www.dexterityit.com.br/calculadora-cdb" data-ferramenta>Calculadora CDB</a></li>
+          <li><a href="https://www.dexterityit.com.br/titulos-publicos" data-ferramenta>Títulos Públicos</a></li>
+          <li><a href="https://www.dexterityit.com.br/indicadores-economicos" data-ferramenta>Indicadores Econômicos</a></li>
+          <li><a href="https://www.dexterityit.com.br/cotacao-de-moedas" data-ferramenta>Cotação de Moedas</a></li>
+          <li><a href="https://www.dexterityit.com.br/moedas-bndes" data-ferramenta>Moedas BNDES</a></li>
+          <li><a href="https://www.dexterityit.com.br/ibge" data-ferramenta>Séries IBGE</a></li>
+          <li><a href="https://www.dexterityit.com.br/cotacao-de-metais" data-ferramenta aria-current="page">Cotação de Metais</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="dxt-eyebrow dxt-eyebrow-muted">Empresa</h4>
+        <ul>
+          <li><a href="https://www.dexterityit.com.br/solucoes">Soluções</a></li>
+          <li><a href="https://www.dexterityit.com.br/cursos">Cursos</a></li>
+          <li><a href="https://www.dexterityit.com.br/experiencia">Experiência</a></li>
+          <li><a href="https://www.dexterityit.com.br/contato">Falar com a gente</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="dxt-footer-nota">
+      <div>
+        <p>
+          As cotações são obtidas automaticamente de fontes públicas — preços oficiais da LME
+          divulgados pela Westmetall, ajustes da CME (COMEX e NYMEX) pelo Yahoo Finance, boletim diário
+          da SHFE, boletim de pregão da B3, PTAX do Banco Central do Brasil, médias mensais do Banco
+          Mundial (Commodity Price Data, CC BY 4.0) e preço à vista indicativo da gold-api.com — e são
+          do pregão anterior ou atrasadas. Destinam-se exclusivamente a conferência e apoio operacional:
+          não são recomendação de investimento nem substituem a publicação oficial de cada bolsa. A
+          Dexterity IT Solutions não se responsabiliza pela exatidão, atualidade ou completude dos
+          dados, nem por decisões tomadas com base neles.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal: planilha de apoio para o SAP (preço de commodity por DCS) -->
+  <div id="modalSap" class="dxt-modal" role="dialog" aria-modal="true" aria-labelledby="modalSapTitulo" hidden>
+    <div class="dxt-modal-box">
+      <div class="row">
+        <strong id="modalSapTitulo" class="dxt-card-title">Planilha de apoio SAP — Preço de commodity (DCS)</strong>
+        <button type="button" id="modalSapFechar" class="dxt-btn dxt-btn--ghost dxt-btn--icon" title="Fechar" aria-label="Fechar"><svg class="ic" aria-hidden="true"><use href="#ic-x"/></svg></button>
+      </div>
+      <div class="modal-corpo">
+        <p>
+          No SAP S/4HANA o preço de commodity é mantido por <b>especificação de contrato derivativo
+          (DCS)</b>, na transação <b>FDCS17</b> ou pela planilha da <b>TBEXN</b> — o aplicativo
+          <a href="https://fioriappslibrary.hana.ondemand.com/sap/fix/externalViewer/#/detail/Apps('F2610')/S32PCE"
+             target="_blank" rel="noopener">Importar Dados de Mercado (F2610)</a>
+          não tem categoria de commodity. Esta planilha <b>não é um modelo oficial de carga</b>: ela
+          traz, na aba <b>Data</b>, os campos-chave do preço por DCS, na moeda e na unidade da praça,
+          para conferir, digitar ou colar no SAP.
+        </p>
+        <p id="sapOrigem"></p>
+
+        <div class="sap-campos">
+          <div class="campo">
+            <label class="dxt-label" for="sapDcs">DCS ID</label>
+            <input id="sapDcs" class="dxt-input mono" maxlength="20" autocomplete="off" placeholder="como no cadastro do SAP" />
+          </div>
+          <div class="campo">
+            <label class="dxt-label" for="sapMic">MIC (ISO 10383)</label>
+            <input id="sapMic" class="dxt-input mono" maxlength="4" autocomplete="off" />
+          </div>
+          <div class="campo">
+            <label class="dxt-label" for="sapTipo">Tipo de preço</label>
+            <input id="sapTipo" class="dxt-input mono" maxlength="10" autocomplete="off" placeholder="código do seu SAP" />
+          </div>
+          <div class="campo">
+            <label class="dxt-label" for="sapUnidade">Unidade de medida</label>
+            <input id="sapUnidade" class="dxt-input mono" maxlength="3" autocomplete="off" />
+          </div>
+        </div>
+        <p class="nota-linha" id="sapDica"></p>
+        <p class="nota" id="sapAviso" role="status" hidden></p>
+
+        <div class="sap-acoes">
+          <span class="dxt-badge" id="sapResumo" aria-live="polite">—</span>
+          <button type="button" id="btnSapGerar" class="dxt-btn"><svg class="ic" aria-hidden="true"><use href="#ic-send"/></svg>Gerar planilha</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Moldura do site (iframe em ?embed=1): altura automática, diálogos e avisos. Antes do app. -->
+  <script src="assets/moldura.js"></script>
+
+  <!-- O app: catálogo e cálculos vêm de lib/, os mesmos módulos que as funções de /api usam -->
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>
